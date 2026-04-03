@@ -1,4 +1,5 @@
 <script setup>
+import { RouterLink } from 'vue-router';
 
 </script>
 
@@ -6,7 +7,7 @@
     <section>
         <div class="product-card">
             <div class="image-container">
-                <img src="../assets/product.jpeg" alt="Product Image" class="image">
+                <RouterLink to="/product-name"><img src="../assets/product.jpeg" alt="Product Image" class="image"></RouterLink>
                 <div class="esgotado">
                     <p>ESGOTADO</p>
                 </div>
