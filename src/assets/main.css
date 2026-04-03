@@ -1,0 +1,18 @@
+*{
+    font-family: 'Poppins', sans-serif;
+}
+
+body{
+    margin: 0;
+    background-color: white;
+    position: relative;
+}
+
+button, img{
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+button:hover, img:hover{
+    opacity: 0.8;
+}
