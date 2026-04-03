@@ -186,6 +186,8 @@ const toggleDescription = () => {
 }
 
 .quantity-container input{
+    flex: 1;
+    min-width: 0;
     width: 40px;
     text-align: center;
     border: none;
@@ -193,7 +195,8 @@ const toggleDescription = () => {
 }
 
 .quantity-changer{
-    padding: 10px 12px;
+    flex: 1;
+    padding: 8px;
     background: white;
     border: none;
     cursor: pointer;
@@ -245,6 +248,19 @@ const toggleDescription = () => {
 
     .button-container{
         width: 100%;
+    }
+
+    .quantity-container{
+        width: 100%;
+    }
+
+    .quantity-changer{
+        padding: 6px; 
+        font-size: 14px;
+    }
+
+    .quantity-container input{
+        font-size: 14px;
     }
 }
 </style>

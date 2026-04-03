@@ -1,20 +1,29 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import ProductCard from './ProductCard.vue';
+import { useProduct } from '@/composable/useProduct';
+
+const {fetchOffers, error, loading, products} = useProduct();
+
+onMounted(() =>{
+    fetchOffers();
+})
 </script>
 
 <template>
-    <section class="section">
+    <section v-if="products.length > 0" class="section">
         <div class="title">
             <h3>Ofertas</h3>
         </div>
-        <div class="products">
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
+        <div v-if="hasOffers">
+            <div v-if="loading">Carregando...</div>
+            <div v-else-if="error">{{error}}</div>
+            <div v-else class="products">
+                <ProductCard
+                v-for="product in products"
+                :key="product.productId"
+                :product="product"/>
+            </div>
         </div>
     </section>
 </template>

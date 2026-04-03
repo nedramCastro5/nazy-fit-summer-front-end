@@ -1,5 +1,14 @@
 <script setup>
+import { onMounted } from 'vue';
+import { useProduct } from '@/composable/useProduct';
+
 import ProductCard from './ProductCard.vue';
+
+const { fetchAll, loading, products, error } = useProduct();
+
+onMounted(() =>{
+    fetchAll();
+})
 </script>
 
 <template>
@@ -7,14 +16,16 @@ import ProductCard from './ProductCard.vue';
         <div class="title">
             <h3>Lancamentos!</h3>
         </div>
-        <div class="products">
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
+
+        <div v-if="loading">Carregando...</div>
+        <div v-else-if="error">{{ error }}</div>
+
+        <div v-else class="products">
+            <ProductCard
+            v-for="product in products"
+            :key="product.productId"
+            :product="product"
+            />
         </div>
     </section>
 </template>

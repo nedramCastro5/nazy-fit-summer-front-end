@@ -1,6 +1,17 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 
+const props = defineProps({
+    product:{
+        type: Object,
+        required: true
+    }
+});
+
+const calculateInstallments = (price) => {
+    const installment = (price / 12).toFixed(2);
+    return installment;
+}
 </script>
 
 <template>
@@ -8,16 +19,16 @@ import { RouterLink } from 'vue-router';
         <div class="product-card">
             <div class="image-container">
                 <RouterLink to="/product-name"><img src="../assets/product.jpeg" alt="Product Image" class="image"></RouterLink>
-                <div class="esgotado">
+                <div v-if="props.product.stock === 0" class="esgotado">
                     <p>ESGOTADO</p>
                 </div>
             </div>
             <div class="product-info">
-                <div class="product-name">Chá Dream Up</div>
-                <div class="product-price">R$ 197.00</div>
-                <div class="product-price-installment">12 x R$20.26</div>
+                <div class="product-name">{{ props.product.productName }}</div>
+                <div class="product-price"> MZN {{ props.product.price.toFixed(2) }}</div>
+                <div class="product-price-installment">12 x MZN {{calculateInstallments(props.product.price.toFixed(2))}}</div>
             </div>
-            <div class="buy-button">
+            <div v-if="props.product.stock > 0" class="buy-button">
                 <button>
                     Comprar
                 </button>
