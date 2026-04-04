@@ -6,7 +6,7 @@ import Footer from './components/Footer.vue';
 
 <template>
     <Header/>
-    <RouterView/>
+    <RouterView :key="$route.fullPath"/>
     <Footer/>
     <a href=""><img src="@/assets/wa-logo.png" alt="Whatsapp logo" class="wa-logo"></a>
 </template>

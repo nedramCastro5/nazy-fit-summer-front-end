@@ -91,7 +91,7 @@ const menuOpen = ref(false)
 
 <style scoped>
 .header {
-    background-color: #fce8ea;
+    /* background-color: #fce8ea; */
     padding: 0 10%;
     position: sticky;
     top: 0;

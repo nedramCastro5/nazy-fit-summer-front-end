@@ -20,12 +20,16 @@ onMounted(() =>{
         <div v-if="loading">Carregando...</div>
         <div v-else-if="error">{{ error }}</div>
 
-        <div v-else class="products">
+        <div v-else-if="products.length > 0" class="products">
             <ProductCard
             v-for="product in products"
             :key="product.productId"
             :product="product"
             />
+        </div>
+
+        <div v-else>
+            Nenhum lancamento no momento.
         </div>
     </section>
 </template>

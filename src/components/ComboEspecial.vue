@@ -1,12 +1,12 @@
 <script setup>
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
+import { useProduct } from "@/composable/useProduct"
+import { productApi } from "@/api/Product/productApi";
+
+const {fetchSpecialCombo, product, loading, error} = useProduct();
 
 const addedToCart = ref(false)
 const showFullDescription = ref(false)
-
-const shortText = "Este produto é um suplemento alimentar multifuncional, focado principalmente em gerenciamento de peso..."
-
-const fullText = `Este produto é um suplemento alimentar multifuncional, focado principalmente em gerenciamento de peso (emagrecimento) e saúde metabólica. Ele combina ingredientes naturais conhecidos por suas propriedades termogênicas e antioxidantes.`
 
 const addToCart = () => {
     addedToCart.value = true
@@ -15,11 +15,17 @@ const addToCart = () => {
 const toggleDescription = () => {
     showFullDescription.value = !showFullDescription.value
 }
+
+onMounted(() => {
+    fetchSpecialCombo();
+})
 </script>
 
-<template>
-    <section class="section">
-        
+<template> 
+    <div v-if="loading">Carregando...</div>
+    <div v-else-if="error">{{ error }}</div>
+    <section v-else class="section">
+
         <div class="img-container">
             <img src="../assets/product.jpeg" alt="Product-Image" class="product-img">
         </div>
@@ -27,15 +33,15 @@ const toggleDescription = () => {
         <div class="info-container">
             
             <div class="product-name">
-                Chá My Diurect
+               {{ product.productName }}
             </div>
 
             <div class="product-price">
-                R$97.00
+                MZN {{ product.price.toFixed(2) }}
             </div>
 
             <div class="product-price-installment">
-                12 x de R$9,98
+                12 x de MZN {{product.price.toFixed(2) }}
             </div>
 
             <div class="buy-section">
@@ -47,7 +53,8 @@ const toggleDescription = () => {
                 </div>
 
                 <div class="button-container"> 
-                    <button @click="addToCart">Comprar</button>
+                    <button @click="addToCart" v-if="product.stock > 0">Comprar</button>
+                    <button v-else class="btn-esgotado">Esgotado</button>
                 </div>
             </div>
 
@@ -71,8 +78,8 @@ const toggleDescription = () => {
             <div class="description">
                 <p>
                     {{ showFullDescription 
-                        ? fullText 
-                        : shortText 
+                        ? product.shortDescription 
+                        : product.shortDescription.slice(0, 130) + "..."
                     }}
                 </p>
 

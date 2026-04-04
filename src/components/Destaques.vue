@@ -11,7 +11,7 @@ onMounted(() =>{
 </script>
 
 <template>
-    <section class="section" v-if="products.length > 0">
+    <section class="section">
         <div class="title">
             <h3>Nossos Destaques</h3>
         </div>
@@ -19,11 +19,15 @@ onMounted(() =>{
         <div v-if="loading">Carregando...</div>
         <div v-else-if="error">{{ error }}</div>
 
-        <div v-else class="products">
+        <div v-else-if="products.length > 0" class="products">
             <ProductCard
             v-for="product in products"
             :key="product.productId"
             :product="product"/>
+        </div>
+
+        <div>
+            Nenhum produto em destaque no momento.
         </div>
     </section>
 </template>

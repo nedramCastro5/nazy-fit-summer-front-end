@@ -17,7 +17,6 @@ export const productApi = {
             sort
         }
     }),
-    getTopSales: async () => 
-        await api.get('/v1/products/top-sales')
-    
+    getTopSales: async () => await api.get('/v1/products/top-sales'),
+    getSpecialCombo: async() => await api.get('/v1/products/special-combo')    
 }
