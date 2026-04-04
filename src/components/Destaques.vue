@@ -3,15 +3,15 @@ import { onMounted } from 'vue';
 import ProductCard from './ProductCard.vue';
 import { useProduct } from '@/composable/useProduct';
 
-const {fetchAll, loading, error, products} = useProduct();
+const {fetchBestSelling, loading, error, products} = useProduct();
 
 onMounted(() =>{
-    fetchAll();
+    fetchBestSelling();
 })
 </script>
 
 <template>
-    <section class="section">
+    <section class="section" v-if="products.length > 0">
         <div class="title">
             <h3>Nossos Destaques</h3>
         </div>
@@ -29,7 +29,7 @@ onMounted(() =>{
 </template>
 
 <style scoped>
-    .section{
+.section{
     padding: 0 10%;
     margin-bottom: 20px;
 }

@@ -16,5 +16,8 @@ export const productApi = {
             page,
             sort
         }
-    })
+    }),
+    getTopSales: async () => 
+        await api.get('/v1/products/top-sales')
+    
 }

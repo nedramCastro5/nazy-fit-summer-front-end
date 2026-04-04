@@ -130,6 +130,7 @@ const toggleDescription = () => {
 .section{
     padding: 0 10%;
     margin-top: 60px;
+    margin-bottom: 50px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;

@@ -33,5 +33,27 @@ export function useProduct() {
         }
     }
 
-    return {fetchAll, fetchOffers, products, loading, error, product}
+    const fetchBestSelling = async () =>{
+        loading.value = true;
+
+        try{
+            const {data} = await productApi.getTopSales();
+            products.value = data.data.content;
+        }catch(err){
+            error.value = err.message
+        }finally{
+            loading.value = false;
+        }
+
+    }
+
+    return {
+        fetchAll,
+        fetchOffers, 
+        fetchBestSelling, 
+        products, 
+        loading, 
+        error, 
+        product
+    }
 }
