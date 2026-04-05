@@ -174,20 +174,6 @@ main {
     flex-shrink: 0;
 }
 
-.breadcrumb {
-  font-size: 0.85rem;
-  color: #888;
-  margin-bottom: 8px;
-}
-
-.breadcrumb a {
-  color: #888;
-  text-decoration: none;
-}
-.breadcrumb a:hover {
-  text-decoration: underline;
-}
-
 .product-container {
   display: grid;
   grid-template-columns: 90px 1fr 1fr;

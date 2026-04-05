@@ -1,7 +1,10 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
+import { RouterLink } from 'vue-router';
+import CartItems from '@/components/components-parts/CartItems.vue';
 
 const menuOpen = ref(false)
+const cartOpen = ref(false)
 
 const isScrolled = ref(false);
 
@@ -47,17 +50,18 @@ onUnmounted(() =>{
       <!-- Action items -->
       <div class="actions">
         <div class="action-item">
-          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="#c0626a">
+          <RouterLink to="/account/login"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="#c0626a">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A4 4 0 0 1 8 16h8a4 4 0 0 1 2.879 1.804M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-          </svg>
+          </svg></RouterLink>
           <div class="action-text">
-            <span class="action-label">Login /</span>
-            <span class="action-sub">Cadastre-se</span>
+            <span class="action-label"><RouterLink to="/account/login">Login /</RouterLink></span>
+            <span class="action-sub"><RouterLink to="/account/login" class="a-sub">Cadastre-se</RouterLink></span>
           </div>
         </div>
 
+        <!-- CART CLICK -->
         <div class="action-item">
-          <div class="cart-icon-wrap">
+          <div class="cart-icon-wrap" @click="cartOpen = true">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="#c0626a">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/>
             </svg>
@@ -83,9 +87,9 @@ onUnmounted(() =>{
       </div>
     </div>
 
-    <!-- Overlay for closing mobile menu -->
+    <!-- Overlay -->
     <transition name="fade">
-      <div v-if="menuOpen" class="overlay" @click="menuOpen = false"></div>
+      <div v-if="menuOpen || cartOpen" class="overlay" @click="menuOpen = false; cartOpen = false"></div>
     </transition>
 
     <!-- Mobile slide menu -->
@@ -100,10 +104,44 @@ onUnmounted(() =>{
         </ul>
       </nav>
     </transition>
+
+    <!-- CART DRAWER -->
+    <transition name="slide-right">
+      <aside v-if="cartOpen" class="cart-drawer">
+        <button class="close-btn" @click="cartOpen = false">Carrinho de Compras X</button>
+
+        <CartItems/>
+
+        <div class="cart-footer">
+          <div class="total"><span>Total:</span> <span>R$ 300.00</span></div>
+          <button class="checkout-btn">Finalizar Compra</button>
+        </div>
+      </aside>
+    </transition>
   </header>
+  <div class="line"></div>
 </template>
 
 <style scoped>
+.line{
+  background-color: rgba(128, 128, 128, 0.2);
+  height: 1px;
+}
+
+a{
+  text-decoration: none;
+  color: black;
+}
+
+.a-sub{
+  color: #666;
+}
+
+.total{
+  display: flex;
+  justify-content: space-between;
+}
+
 .header {
     /* background-color: #fce8ea; */
     padding: 0 10%;
@@ -298,22 +336,30 @@ onUnmounted(() =>{
   top: 0;
   left: 0;
   height: 100vh;
-  width: 240px;
-  background-color: #fce8ea;
+  width: 100%;
   padding: 60px 20px;
   box-shadow: 2px 0 12px rgba(0,0,0,0.1);
   z-index: 200;
+  background-color: white;
 }
 
 .mobile-menu .close-btn {
   position: absolute;
   top: 15px;
-  right: 15px;
+  right: 50px;
   background: none;
   border: none;
   font-size: 2rem;
   cursor: pointer;
-  color: #c0626a;
+  display: flex;
+}
+
+.close-btn{
+  background-color: none;
+  border: none;
+  padding: 10px;
+  background-color: #f08a9264;
+  margin-bottom: 20px;
 }
 
 .mobile-menu ul {
@@ -328,52 +374,65 @@ onUnmounted(() =>{
 
 .mobile-menu a {
   text-decoration: none;
-  color: #c0626a;
-  font-weight: 600;
+  color: black;
+  font-weight: 500;
 }
 
-.slide-enter-from {
-  transform: translateX(-100%); 
-}
-.slide-enter-to {
-  transform: translateX(0);
-}
-.slide-enter-active {
-  transition: transform 0.3s ease; 
-}
-
-.slide-leave-from { 
-  transform: translateX(0); 
-}
-
-.slide-leave-to { 
-  transform: translateX(-100%); 
+.cart-drawer {
+  display: flex;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 100vh;
+  background: white;
+  z-index: 300;
+  padding: 20px;
+  box-shadow: -2px 0 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
 }
 
-.slide-leave-active { 
-  transition: transform 0.3s ease; 
+.cart-title {
+  margin-top: 40px;
+  margin-bottom: 20px;
 }
 
-.fade-enter-from { 
-  opacity: 0; 
+.cart-footer {
+  margin-top: auto;
 }
 
-.fade-enter-to { 
-  opacity: 1; 
+.checkout-btn {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 50px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #f08a93;
+  color: white;
 }
 
-.fade-enter-active { 
-  transition: opacity 0.3s ease; 
-}
+.slide-enter-from { transform: translateX(-100%); }
+.slide-enter-to { transform: translateX(0); }
+.slide-enter-active { transition: transform 0.3s ease; }
 
-.fade-leave-from { 
-  opacity: 1; 
-}
-.fade-leave-to { 
-  opacity: 0; 
-}
+.slide-leave-to { transform: translateX(-100%); }
+.slide-leave-active { transition: transform 0.3s ease; }
 
-.fade-leave-active { 
-  transition: opacity 0.3s ease; 
+.slide-right-enter-from { transform: translateX(100%); }
+.slide-right-enter-to { transform: translateX(0); }
+.slide-right-enter-active { transition: transform 0.3s ease; }
+
+.slide-right-leave-to { transform: translateX(100%); }
+.slide-right-leave-active { transition: transform 0.3s ease; }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -13,6 +13,10 @@ body{
     overflow-y: auto;
 }
 
+a{
+    color: black;
+}
+
 button, img{
     transition: opacity 0.2s;
     cursor: pointer;
@@ -21,3 +25,19 @@ button, img{
 button:hover, img:hover{
     opacity: 0.8;
 }
+
+.breadcrumb {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.breadcrumb a {
+  color: #888;
+  text-decoration: none;
+}
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+
