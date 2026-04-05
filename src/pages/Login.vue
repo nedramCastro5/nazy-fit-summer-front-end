@@ -1,8 +1,29 @@
 <script setup>
 import { ref } from 'vue';
+import { useAuthentication } from '@/composable/useAuthentication';
 const showPassword = ref(false);
 
-const handleLogin = () =>{
+const {error, handleLogin} = useAuthentication();
+
+const login = () => {
+    const insertedEmail = document.getElementById('userEmail').value;
+    const insertedPassword = document.getElementById('userPassword').value;
+
+    if(insertedEmail === "" || !insertedEmail){
+        error.value = "Insira o seu email!" 
+        return;
+    }
+
+    if(insertedPassword === "" || !insertedPassword){
+        error.value = "Insira a sua senha!" 
+        return;
+    }
+
+
+    handleLogin({
+        email: insertedEmail,
+        password: insertedPassword
+    })
     
 }
 </script>
@@ -18,7 +39,7 @@ const handleLogin = () =>{
 
         <div class="login-container">
             <h3>Iniciar Sessão</h3>
-            <form @submit.prevent="handleLogin" class="login-form">
+            <form @submit.prevent="login" class="login-form">
                 <label for="email">E-mail</label>
             <br>
                 <input type="email" name="email" id="userEmail" placeholder="ex: seuemail@email.com">
@@ -42,10 +63,12 @@ const handleLogin = () =>{
                         </svg>
                     </button>
                 </div>
+                <span class="error" v-if="error">{{error}}</span>
                 <div class="forgot-password">
                     <label for="forgot-password"><RouterLink>Esqueceu a senha?</RouterLink></label>
                 </div>
                 <button type="submit" class="login-btn">Iniciar sessão</button>
+                
                 <div class="register-opt">
                     <label for="register">Não possui uma conta? <RouterLink to="/account/register">Criar uma conta</RouterLink></label>
                 </div>
@@ -55,7 +78,6 @@ const handleLogin = () =>{
 </template>
 
 <style scoped>
-
 .register-opt{
     display: flex;
     justify-content: center;
