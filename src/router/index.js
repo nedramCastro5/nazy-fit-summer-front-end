@@ -8,7 +8,7 @@ const routes = [
         component: HomePage
     },
     {
-        path: '/product-name',
+        path: '/product/:slug',
         component: ProductPage
     }
 ]

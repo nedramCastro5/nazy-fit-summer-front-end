@@ -15,10 +15,10 @@ const calculateInstallments = (price) => {
 </script>
 
 <template>
-    <section>
+    <section v-if="props.product && props.product.slug">
         <div class="product-card">
             <div class="image-container">
-                <RouterLink to="/product-name"><img src="../assets/product.jpeg" alt="Product Image" class="image"></RouterLink>
+                <RouterLink :to="`/product/${props.product.slug}`"><img src="../assets/product.jpeg" alt="Product Image" class="image"></RouterLink>
                 <div v-if="props.product.stock === 0" class="esgotado">
                     <p>ESGOTADO</p>
                 </div>

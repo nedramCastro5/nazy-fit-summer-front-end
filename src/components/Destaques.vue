@@ -26,7 +26,7 @@ onMounted(() =>{
             :product="product"/>
         </div>
 
-        <div>
+        <div v-else>
             Nenhum produto em destaque no momento.
         </div>
     </section>

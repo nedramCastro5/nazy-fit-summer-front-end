@@ -18,15 +18,8 @@ export function useProduct() {
         slug: "",
         isFeatured: false,
         isSpecialCombo: false,
-        longDescription: [
-            {
-                type: "",
-                text: "",
-                isItalic: false,
-                isBold: false,
-                position: 1
-            }
-        ]
+        images:[],
+        longDescription: []
     })
 
     
@@ -52,7 +45,7 @@ export function useProduct() {
 
         try{
             const {data} = await productApi.getOffers();
-            products.value = data.data.content || []
+            products.value = data.data.content
         }catch(err){
             error.value = err.message
         }finally{
@@ -65,9 +58,10 @@ export function useProduct() {
 
         try{
             const {data} = await productApi.getTopSales();
-            products.value = data.data.content || [];
+            products.value = data?.data?.content ?? [];
         }catch(err){
             error.value = err.message
+            products.value = [];
         }finally{
             loading.value = false;
         }
@@ -79,11 +73,22 @@ export function useProduct() {
 
         try{
             const {data} = await productApi.getSpecialCombo();
-            product.value = data.data || [];
+            product.value = data.data;
         }catch(err){
             error.value = err.message
         }finally{
             loading.value = false;
+        }
+    }
+
+    const fetchBySlug = async (slug) =>{
+        loading.value = true;
+
+        try{
+            const {data} = await productApi.getBySlug(slug);
+            product.value = data.data;
+        }catch(err){
+            error.value = err.message
         }
     }
 
@@ -92,6 +97,7 @@ export function useProduct() {
         fetchOffers, 
         fetchBestSelling, 
         fetchSpecialCombo,
+        fetchBySlug,
         products, 
         loading, 
         error, 

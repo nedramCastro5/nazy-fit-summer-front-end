@@ -1,25 +1,26 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useProduct } from '@/composable/useProduct';
 import SimilarProducts from '@/components/SimilarProducts.vue'
-import banner1 from '@/assets/banner1.jpeg'
-import banner2 from '@/assets/banner2.jpeg'
-import banner3 from '@/assets/banner3.jpeg'
 
-const images = [banner1, banner2, banner3]
+const {fetchBySlug, loading, error, product} = useProduct();
+const route = useRoute();
 const selectedIndex = ref(0)
-
 const selectImage = (index) => {
   selectedIndex.value = index
 }
-
-const isAvailable = ref(true)
 
 const addedToCart = ref(false)
 
 const addToCart = () => {
   addedToCart.value = true
 }
+
 const activeTab = ref('descricao')
+onMounted(()=>{
+  fetchBySlug(route.params.slug);
+})
 </script>
 
 <template>
@@ -28,42 +29,38 @@ const activeTab = ref('descricao')
     <div class="product-container">
       <div class="all-images">
         <figure
-          v-for="(image, index) in images"
+          v-for="(image, index) in product.images"
           :key="index"
           :class="['thumb-wrapper', { active: selectedIndex === index }]"
           @click="selectImage(index)"
         >
-          <img :src="image" class="mini-image" alt="Product thumbnail" />
+          <img :src="image" class="mini-image" :alt="product.productName" />
         </figure>
       </div>
 
-      <!-- Main Image -->
       <div class="main-image-container">
-        <span class="badge">ESGOTADO</span>
-        <span class="counter">{{ selectedIndex + 1 }} / {{ images.length }}</span>
+        <span class="badge" v-if="product.stock == 0">ESGOTADO</span>
+        <span class="counter">{{ selectedIndex + 1 }} / {{ product.images.length }}</span>
         <figure>
-          <img :src="images[selectedIndex]" alt="Main Product Image" class="main-image" />
+          <img :src="product.images[selectedIndex]" :alt="product.productName" class="main-image" />
         </figure>
       </div>
 
-      
-
-      <!-- Product Details -->
       <div class="product-details">
         <div class="breadcrumb">
             <RouterLink to="/">Início</RouterLink>
             <span> › </span>
-            <RouterLink to="/suplementos">Suplemento em Pó</RouterLink>
+            <RouterLink to="/">{{product.categoryName}}</RouterLink>
             <span> › </span>
-            <span>Chá Drean Up</span>
+            <span>{{product.productName}}</span>
         </div>
 
-        <h3 class="product-name">Chá Drean Up</h3>
-        <p class="price">R$197,00</p>
-        <p class="installments">12 x de R$20,26</p>
+        <h3 class="product-name">{{product.productName}}</h3>
+        <p class="price">MZN {{ product.price.toFixed(2) }}</p>
+        <p class="installments">12 x de MZN {{product.price.toFixed(2)}}</p>
         <a href="#" class="more-details">Ver mais detalhes</a>
 
-        <button v-if="isAvailable" class="btn" @click="addToCart">Comprar</button>
+        <button v-if="product.stock > 0" class="btn" @click="addToCart">Comprar</button>
         <button v-else class="btn btn-esgotado" disabled>Esgotado</button>
 
         <div v-if="addedToCart" class="cart-confirm">
@@ -110,61 +107,21 @@ const activeTab = ref('descricao')
       </div>
     </div>
     </section>
+
     <section>
-        <div class="product-description">
-        
+        <div class="product-description">    
         <div class="tabs">
             <button :class="['tab', { active: activeTab === 'descricao' }]" @click="activeTab = 'descricao'">Descrição</button>
             <button :class="['tab', { active: activeTab === 'info' }]" @click="activeTab = 'info'">Avaliação</button>
         </div>
 
         <div v-if="activeTab === 'descricao'" class="tab-content">
-            <h3>Drean Up - Chá 10 em 1</h3>
-            <p class="subtitle-italic">DRENUP – O PRIMEIRO PASSO PARA ORGANIZAR SEU METABOLISMO</p>
-
-            <p>Nem todo inchaço é gordura.</p>
-            <p>Nem toda fome é falta de força.</p>
-            <p><em>Às vezes, o que seu corpo precisa é organização.</em></p>
-            <p>O DrenUp foi desenvolvido como um suporte metabólico inteligente para mulheres que desejam:</p>
-
-            <ul class="check-list">
-            <li>✓ Regular o organismo</li>
-            <li>✓ Auxiliar no metabolismo energético</li>
-            <li>✓ Contribuir para o controle do apetite</li>
-            <li>✓ Apoiar o equilíbrio nutricional</li>
-            </ul>
-
-            <p>Sua fórmula combina ativos funcionais como taurina, inositol, café verde, laranja moro, cúrcuma, zinco, cromo e vitamina D3 — criando um suporte completo para a rotina da mulher moderna.</p>
-            <p><em>Não é sobre soluções agressivas. É sobre estratégia.</em></p>
-            <p>O DrenUp é o ritual essencial para quem quer começar a jornada com equilíbrio, leveza e consciência.</p>
-
-            <p><strong>Porque antes de acelerar, é preciso organizar.</strong></p>
-
-            <ul class="bullet-list">
-            <li><strong>Taurina (500 mg)</strong> - Auxilia no metabolismo energético e pode ajudar na redução de fadiga.</li>
-            <li><strong>Inositol (500 mg)</strong> - Contribui para o equilíbrio metabólico e pode auxiliar no controle da compulsão alimentar.</li>
-            <li><strong>Café Verde (250 mg)</strong> - Auxilia no metabolismo energético e na oxidação de gorduras.</li>
-            <li><strong>Ácido Clorogênico (125 mg)</strong> - Componente do café verde que ajuda no metabolismo da glicose.</li>
-            <li><strong>Laranja Moro (200 mg)</strong> - Fonte de antioxidantes (antocianinas), auxilia no metabolismo.</li>
-            </ul>
-
-            <p class="bold-italic">RESUMO ESTRATÉGICO DO DRENUP - Essa fórmula trabalha:</p>
-            <ul class="check-list">
-            <li>✓ Metabolismo energético</li>
-            <li>✓ Controle de apetite</li>
-            <li>✓ Auxílio no metabolismo da glicose</li>
-            <li>✓ Ação antioxidante</li>
-            <li>✓ Equilíbrio metabólico</li>
-            <li>✓ Suporte nutricional</li>
-            </ul>
-
-            <p><strong>Ele é um produto de:</strong></p>
-            <ul class="bullet-list">
-            <li>organização metabólica</li>
-            <li>suporte ao controle alimentar</li>
-            <li>ritual diário</li>
-            </ul>
-
+            <h3>{{product.titleDescription}}</h3>
+            <div v-for="longDes in product.longDescription">
+                <p v-if="longDes.type == 'heading'" class="subtitle" :class="longDes.isItalic? 'italic': '' || longDes.isBold? 'bold': ''">{{longDes.text}}</p>
+                <p v-if="longDes.type == 'paragraph'" :class="longDes.isItalic? 'italic': '' || longDes.isBold? 'bold': ''">{{longDes.text}}</p>
+                <p v-if="longDes.type == 'checklist'" :class="longDes.isItalic? 'italic': '' || longDes.isBold? 'bold': ''">✓ {{ longDes.text }}</p>
+            </div>
             <div class="social-share">
             <a href="#" aria-label="Facebook">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
@@ -187,6 +144,14 @@ const activeTab = ref('descricao')
 </template>
 
 <style scoped>
+.italic{
+  font-style: italic;
+}
+
+.bold{
+  font-weight: 700;
+}
+
 main {
   padding: 20px 5%;
   background: #fff5f7;
@@ -410,8 +375,7 @@ main {
   margin: 8px 0;
 }
 
-.subtitle-italic {
-  font-style: italic;
+.subtitle {
   color: #555;
 }
 
