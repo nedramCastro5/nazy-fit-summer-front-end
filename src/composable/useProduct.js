@@ -89,6 +89,23 @@ export function useProduct() {
             product.value = data.data;
         }catch(err){
             error.value = err.message
+        }finally{
+            loading.value = false
+        }
+    }
+
+    const fetchByCategoryId = async (categoryId, excludedId = null) =>{
+        loading.value = true;
+
+        try{
+            const {data} = await productApi.getByCategoryId(categoryId);
+            const filtered = excludedId? data.data.filter(p => p.productId !== excludedId)
+                            :data.data
+            products.value = filtered.slice(0, 5);
+        }catch(err){
+            error.value = err.message
+        }finally{
+            loading.value = false
         }
     }
 
@@ -98,6 +115,7 @@ export function useProduct() {
         fetchBestSelling, 
         fetchSpecialCombo,
         fetchBySlug,
+        fetchByCategoryId,
         products, 
         loading, 
         error, 

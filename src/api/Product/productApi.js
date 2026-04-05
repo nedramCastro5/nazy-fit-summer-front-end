@@ -19,5 +19,7 @@ export const productApi = {
     }),
     getTopSales: async () => await api.get('/v1/products/top-sales'),
     getSpecialCombo: async() => await api.get('/v1/products/special-combo'),
-    getBySlug: async (slug) => await api.get(`/v1/products/slug/${slug}`)  
+    getBySlug: async (slug) => await api.get(`/v1/products/slug/${slug}`),
+    getByCategoryId: async (categoryId) => await api.get(`/v1/products/category/${categoryId}`),
+    getById: async (productId) => await api.get(`/v1/products/${productId}`)
 }

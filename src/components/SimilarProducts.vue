@@ -1,5 +1,25 @@
 <script setup>
+import { onMounted } from 'vue';
 import ProductCard from './ProductCard.vue';
+import { useProduct } from '@/composable/useProduct';
+
+const {fetchByCategoryId, products, loading, error} = useProduct();
+
+const props = defineProps({
+    productId: {
+        type: Number,
+        required: true
+    },
+    categoryId: {
+        type: Number,
+        required: true
+    }
+})
+
+onMounted(() =>{
+    fetchByCategoryId(props.categoryId, props.productId);
+})
+
 </script>
 
 <template>
@@ -7,15 +27,13 @@ import ProductCard from './ProductCard.vue';
         <div class="title">
             <h3>Produtos Similares</h3>
         </div>
-        <div class="products">
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
-            <ProductCard/>
+        <div v-if="loading">Carregando...</div>
+        <div v-else-if="error">{{error}}</div>
+        <div class="products" v-else-if="products.length > 0">
+            <ProductCard v-for="product in products"
+            :product="product"/>
         </div>
+        <div v-else>Nenhum produto similar encontrado.</div>
     </section>
 </template>
 
@@ -35,10 +53,6 @@ import ProductCard from './ProductCard.vue';
 }
 
 @media (max-width: 600px){
-    .section{
-        padding: 0 5%;
-    }
-
     .products{
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

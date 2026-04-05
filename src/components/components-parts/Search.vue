@@ -1,11 +1,25 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const menuOpen = ref(false)
+
+const isScrolled = ref(false);
+
+const handleScroll = () =>{
+  isScrolled.value = window.scrollY > 20
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+})
+
+onUnmounted(() =>{
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
-  <header class="header">
+  <header :class="['header', {scrolled: isScrolled}]">
     <div class="header-inner">
 
       <!-- Hamburger button -->
@@ -93,9 +107,6 @@ const menuOpen = ref(false)
 .header {
     /* background-color: #fce8ea; */
     padding: 0 10%;
-    position: sticky;
-    top: 0;
-    z-index: 100;
 }
 
 .header-inner {
@@ -228,8 +239,20 @@ const menuOpen = ref(false)
     }
 
     .header-inner {
+        margin-top: 10px;
         height: 64px;
         justify-content: space-between;
+        transition: height 0.3s ease;
+    }
+
+    .header.scrolled .header-inner {
+      height: 55px;
+    }
+
+    .header.scrolled .logo-img {
+      margin-top: 5px;
+      height: 40px;
+      transition: height 0.3s ease;
     }
 
     .header-inner .search-bar {
@@ -260,7 +283,6 @@ const menuOpen = ref(false)
     }
 }
 
-/* Overlay */
 .overlay {
   position: fixed;
   top: 0;
@@ -271,7 +293,6 @@ const menuOpen = ref(false)
   z-index: 150;
 }
 
-/* Mobile slide menu */
 .mobile-menu {
   position: fixed;
   top: 0;

@@ -138,7 +138,9 @@ onMounted(()=>{
     </section>
 
     <section>
-        <SimilarProducts/>
+        <SimilarProducts
+        :category-id="route.params.categoryId"
+        :product-id="route.params.productId"/>
     </section>
   </main>
 </template>

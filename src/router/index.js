@@ -8,7 +8,7 @@ const routes = [
         component: HomePage
     },
     {
-        path: '/product/:slug',
+        path: '/product/:productId/:slug/:categoryId',
         component: ProductPage
     }
 ]
@@ -16,6 +16,11 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior() {
+        return{
+            top: 0
+        }
+    }
 })
 
 export default router;
