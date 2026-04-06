@@ -31,7 +31,7 @@ onMounted(() => {
     <section v-else class="section">
 
         <div class="img-container">
-            <img src="../assets/product.jpeg" alt="Product-Image" class="product-img">
+            <img :src="product.principalUrl" alt="Product-Image" class="product-img">
         </div>
 
         <div class="info-container">
