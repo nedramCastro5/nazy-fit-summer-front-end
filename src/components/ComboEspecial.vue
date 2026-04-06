@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue"
 import { useProduct } from "@/composable/useProduct"
-import { productApi } from "@/api/Product/productApi";
+import ProductCardLoading from "./ProductCardLoading.vue";
 
 const {fetchSpecialCombo, product, loading, error} = useProduct();
 
@@ -22,8 +22,12 @@ onMounted(() => {
 </script>
 
 <template> 
-    <div v-if="loading">Carregando...</div>
-    <div v-else-if="error">{{ error }}</div>
+    <div class="section" v-if="loading">
+        <ProductCardLoading/>
+    </div>
+    <div class="section" v-else-if="error">
+        {{ error }}
+    </div>
     <section v-else class="section">
 
         <div class="img-container">

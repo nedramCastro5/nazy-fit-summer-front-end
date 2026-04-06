@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthentication } from '@/composable/useAuthentication';
+import BreadCrumb from '@/components/components-parts/BreadCrumb.vue';
 const showPassword1 = ref(false);
 const showPassword2 = ref(false);
 
@@ -56,14 +57,8 @@ const register = () =>{
 </script>
 <template>
     <main>
-        <div class="breadcrumb">
-            <RouterLink to="/">Início</RouterLink>
-            <span> › </span>
-            <RouterLink to="/">Minha Conta</RouterLink>
-            <span> › </span>
-            <span>Login</span>
-        </div>
-
+        <BreadCrumb
+        :page="'Cadastre-se'"/>
         <div class="login-container">
             <h3>Criar uma conta</h3>
             <br>
@@ -72,7 +67,7 @@ const register = () =>{
             <form @submit.prevent="register" class="login-form">
                 <label for="name">Nome completo</label>
             <br>
-                <input type="text" name="email" id="userFullName" placeholder="ex: Marden Castro">
+                <input type="text" name="name" id="userFullName" placeholder="ex: Marden Castro">
             <br>
                 <label for="email">E-mail</label>
             <br>
@@ -80,7 +75,7 @@ const register = () =>{
             <br>
                 <label for="phoneNumber">Telefone</label>
             <br>
-                <input type="tel" name="email" id="userPhoneNumber" placeholder="ex: Marden Castro">
+                <input type="tel" name="email" id="userPhoneNumber" placeholder="ex: 841234567">
             <br>
                 <label for="password">Senha</label>
             <br>
@@ -192,16 +187,11 @@ main{
     border: 1px solid rgba(51, 51, 51, 0.3);
     padding: 8px 30px 8px 10px;
     width: 100%;
+    max-width: 400px;
     margin-top: 2px;
     margin-bottom: 15px;
     box-sizing: border-box;
     border-radius: 4px;
-}
-
-.login-form input[type="email"] {
-    max-width: 400px;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .login-form input:focus{
@@ -220,9 +210,5 @@ main{
     align-items: center;
     justify-content: center;
     padding: 0;
-}
-
-.breadcrumb *{
-    color: black;
 }
 </style>

@@ -75,7 +75,7 @@ export function useProduct() {
             const {data} = await productApi.getSpecialCombo();
             product.value = data.data;
         }catch(err){
-            error.value = err.message
+            error.value = "Nenhum combo especial no momento."
         }finally{
             loading.value = false;
         }

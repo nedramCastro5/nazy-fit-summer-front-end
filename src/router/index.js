@@ -3,6 +3,7 @@ import HomePage from "@/pages/HomePage.vue";
 import ProductPage from "@/pages/ProductPage.vue";
 import Login from "@/pages/Login.vue"
 import Register from "@/pages/Register.vue";
+import Account from "@/pages/Account.vue";
 
 const routes = [
     {
@@ -20,6 +21,10 @@ const routes = [
     {
         path: '/account/register',
         component: Register
+    },
+    {
+        path: '/account',
+        component: Account
     }
 ]
 

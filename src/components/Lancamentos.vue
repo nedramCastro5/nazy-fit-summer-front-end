@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useProduct } from '@/composable/useProduct';
-
 import ProductCard from './ProductCard.vue';
+import ProductCardLoading from './ProductCardLoading.vue';
 
 const { fetchAll, loading, products, error } = useProduct();
 
@@ -17,7 +17,9 @@ onMounted(() =>{
             <h3>Lancamentos!</h3>
         </div>
 
-        <div v-if="loading">Carregando...</div>
+        <div v-if="loading">
+            <ProductCardLoading/>
+        </div>
         <div v-else-if="error">{{ error }}</div>
 
         <div v-else-if="products.length > 0" class="products">

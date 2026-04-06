@@ -1,22 +1,47 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router';
+import { useAuthentication } from '@/composable/useAuthentication';
+import { authState } from '@/composable/useAuthState';
 import CartItems from '@/components/components-parts/CartItems.vue';
 
 const menuOpen = ref(false)
 const cartOpen = ref(false)
+const isScrolled = ref(false)
 
-const isScrolled = ref(false);
+const { handleCheck } = useAuthentication()
+const user = authState.user
 
-const handleScroll = () =>{
+// reactive computed values
+const logged = computed(() => authState.isLogged)
+const firstName = computed(() => {
+  if (!user.fullName) return ''
+  return user.fullName.split(' ')[0]
+})
+
+// scroll handler
+const handleScroll = () => {
   isScrolled.value = window.scrollY > 20
 }
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
+// lifecycle hooks
+onMounted(async () => {
+  window.addEventListener('scroll', handleScroll)
+
+  const isUserLogged = await handleCheck()
+  authState.isLogged = isUserLogged
+
+  if (isUserLogged) {
+    const userDetails = JSON.parse(localStorage.getItem('userDetails'))
+    if (userDetails) {
+      user.email = userDetails.email
+      user.phoneNumber = userDetails.phoneNumber
+      user.fullName = userDetails.fullName
+    }
+  }
 })
 
-onUnmounted(() =>{
+onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 </script>
@@ -47,19 +72,25 @@ onUnmounted(() =>{
         </button>
       </div>
 
-      <!-- Action items -->
+      <!-- Actions -->
       <div class="actions">
         <div class="action-item">
-          <RouterLink to="/account/login"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="#c0626a">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A4 4 0 0 1 8 16h8a4 4 0 0 1 2.879 1.804M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-          </svg></RouterLink>
-          <div class="action-text">
+          <RouterLink :to="logged ? '/account' : '/account/login'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="#c0626a">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A4 4 0 0 1 8 16h8a4 4 0 0 1 2.879 1.804M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+            </svg>
+          </RouterLink>
+          <div class="action-text" v-if="!logged">
             <span class="action-label"><RouterLink to="/account/login">Login /</RouterLink></span>
             <span class="action-sub"><RouterLink to="/account/login" class="a-sub">Cadastre-se</RouterLink></span>
           </div>
+          <div v-else class="action-text">
+            <span class="action-label"><RouterLink to="/account">Ola, {{ firstName }}!</RouterLink></span>
+            <span class="action-sub"><RouterLink to="/account">Sair</RouterLink></span>
+          </div>
         </div>
 
-        <!-- CART CLICK -->
+        <!-- Cart -->
         <div class="action-item">
           <div class="cart-icon-wrap" @click="cartOpen = true">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="#c0626a">
@@ -72,10 +103,9 @@ onUnmounted(() =>{
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- Mobile search bar -->
+    <!-- Mobile search -->
     <div class="mobile-search">
       <div class="search-bar">
         <input type="text" placeholder="O que você está buscando?" />
@@ -92,7 +122,7 @@ onUnmounted(() =>{
       <div v-if="menuOpen || cartOpen" class="overlay" @click="menuOpen = false; cartOpen = false"></div>
     </transition>
 
-    <!-- Mobile slide menu -->
+    <!-- Mobile Menu -->
     <transition name="slide">
       <nav v-if="menuOpen" class="mobile-menu">
         <button class="close-btn" @click="menuOpen = false">×</button>
@@ -105,13 +135,11 @@ onUnmounted(() =>{
       </nav>
     </transition>
 
-    <!-- CART DRAWER -->
+    <!-- Cart Drawer -->
     <transition name="slide-right">
       <aside v-if="cartOpen" class="cart-drawer">
         <button class="close-btn" @click="cartOpen = false">Carrinho de Compras X</button>
-
         <CartItems/>
-
         <div class="cart-footer">
           <div class="total"><span>Total:</span> <span>R$ 300.00</span></div>
           <button class="checkout-btn">Finalizar Compra</button>

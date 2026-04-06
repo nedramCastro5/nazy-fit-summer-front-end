@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue';
+import BreadCrumb from '@/components/components-parts/BreadCrumb.vue';
 import { useAuthentication } from '@/composable/useAuthentication';
+
 const showPassword = ref(false);
 
 const {error, handleLogin} = useAuthentication();
@@ -29,14 +31,8 @@ const login = () => {
 </script>
 <template>
     <main>
-        <div class="breadcrumb">
-            <RouterLink to="/">Início</RouterLink>
-            <span> › </span>
-            <RouterLink to="/">Minha Conta</RouterLink>
-            <span> › </span>
-            <span>Login</span>
-        </div>
-
+        <BreadCrumb 
+        :page="'Login'"/>
         <div class="login-container">
             <h3>Iniciar Sessão</h3>
             <form @submit.prevent="login" class="login-form">
@@ -156,7 +152,4 @@ main{
     padding: 0;
 }
 
-.breadcrumb *{
-    color: black;
-}
 </style>
