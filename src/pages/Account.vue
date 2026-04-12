@@ -1,13 +1,16 @@
 <script setup>
 import BreadCrumb from '@/components/components-parts/BreadCrumb.vue';
 import { useAuthentication } from '@/composable/useAuthentication';
+import { useCart } from '@/composable/useCart';
 
 const userDetails = JSON.parse(localStorage.getItem('userDetails'))
 
 const {handleLogout, error} = useAuthentication();
+const {loadLocalCart} = useCart();
 
-const logout = () => {
-    handleLogout();
+const logout = async () => {
+    await handleLogout();
+    loadLocalCart();
 }
 </script>
 

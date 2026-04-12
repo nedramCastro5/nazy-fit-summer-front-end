@@ -1,20 +1,49 @@
 <script setup>
 import { onMounted, ref } from "vue"
 import { useProduct } from "@/composable/useProduct"
+import { useCart } from "@/composable/useCart";
 import ProductCardLoading from "./ProductCardLoading.vue";
 
 const {fetchSpecialCombo, product, loading, error} = useProduct();
 
 const addedToCart = ref(false)
+const loadingCart = ref(false)
 const showFullDescription = ref(false)
+const quantity = ref(1)
 
-const addToCart = () => {
-    addedToCart.value = true
+const {handleAddToCart} = useCart();
+
+const addToCart = async (prod) => {
+    loadingCart.value = true
+    addedToCart.value = false
+
+    await handleAddToCart(prod, quantity.value)
+
+    setTimeout(() => {
+        loadingCart.value = false
+        addedToCart.value = true
+    }, 800)
+    clearTimeout();
+}
+
+const increaseQuantity = () => {
+    quantity.value++
+}
+
+const decreaseQuantity = () => {
+    if(quantity.value > 1){
+        quantity.value--
+    }
 }
 
 const toggleDescription = () => {
     showFullDescription.value = !showFullDescription.value
 }
+
+const calculateInstallments = (price) => {
+    return (price / 12).toFixed(2);
+}
+
 
 onMounted(() => {
     fetchSpecialCombo();
@@ -25,9 +54,11 @@ onMounted(() => {
     <div class="section" v-if="loading">
         <ProductCardLoading/>
     </div>
+
     <div class="section" v-else-if="error">
         {{ error }}
     </div>
+
     <section v-else class="section">
 
         <div class="img-container">
@@ -45,38 +76,57 @@ onMounted(() => {
             </div>
 
             <div class="product-price-installment">
-                12 x de MZN {{product.price.toFixed(2) }}
+                12 x de MZN {{ calculateInstallments(product.price) }}
             </div>
 
             <div class="buy-section">
 
                 <div class="quantity-container">
-                    <button class="quantity-changer">−</button>
-                    <input type="text" value="1">
-                    <button class="quantity-changer">+</button>
+                    <button 
+                        class="quantity-changer"
+                        @click="decreaseQuantity"
+                    >−</button>
+
+                    <input 
+                        type="text" 
+                        v-model="quantity"
+                    >
+
+                    <button 
+                        class="quantity-changer"
+                        @click="increaseQuantity"
+                    >+</button>
                 </div>
 
                 <div class="button-container"> 
-                    <button @click="addToCart" v-if="product.stock > 0">Comprar</button>
-                    <button v-else class="btn-esgotado">Esgotado</button>
+                    <button 
+                        @click="addToCart(product)" 
+                        v-if="product.stock > 0"
+                    >
+                        {{ loadingCart ? "Carregando..." : "Comprar" }}
+                    </button>
+
+                    <button v-else class="btn-esgotado">
+                        Esgotado
+                    </button>
                 </div>
             </div>
 
             <div v-if="addedToCart" class="cart-confirm">
-            <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                class="check-icon"
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-            >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
+                <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    class="check-icon"
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
 
-            <span>
-                Você já adicionou este produto. 
-                <a href="">Ver carrinho</a>
-            </span>
+                <span>
+                    Você já adicionou este produto. 
+                    <a href="">Ver carrinho</a>
+                </span>
             </div>
 
             <div class="description">
@@ -91,6 +141,7 @@ onMounted(() => {
                     {{ showFullDescription ? 'Ver menos' : 'Ver mais' }}
                 </button>
             </div>
+
         </div>
 
     </section>

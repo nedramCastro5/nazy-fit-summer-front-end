@@ -2,6 +2,10 @@
 import { RouterView } from 'vue-router';
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
+
+console.log(JSON.parse(localStorage.getItem('userCart')) || []);
+
+// localStorage.clear();
 </script>
 
 <template>

@@ -1,38 +1,67 @@
 <script setup>
-import { ref } from 'vue'
+import { useCart } from '@/composable/useCart'
 
-const quantity = ref(1)
+const { handleUpdateQuantity, handleRemoveFromCart, fetchCart } = useCart()
+
+const props = defineProps({
+  item:{
+    type: Object,
+    required: true
+  }
+})
 
 const increment = () => {
-  quantity.value++
+  handleUpdateQuantity(
+    props.item.productId, 
+    props.item.quantity + 1
+  )
 }
 
 const decrement = () => {
-  if (quantity.value > 1) quantity.value--
+  if(props.item.quantity > 1){
+    handleUpdateQuantity(
+      props.item.productId, 
+      props.item.quantity - 1
+    )
+  }
 }
 
-const removeItem = () => {
-    
+const removeItem = async () => {
+  console.log(props.item.productId)
+  await handleRemoveFromCart(props.item.productId)
+  await fetchCart();
 }
 </script>
 
 <template>
   <div class="cart-item-component">
-    <img class="product-img" />
+    <img 
+      :src="props.item.image"
+      :alt="props.item.productName" 
+      class="mini-image"
+    />
 
     <div class="product-info">
       <div class="top-row">
-        <span class="product-name">My Curly Gel Redutor</span>
-        <a class="remove-btn" @click="removeItem">Remover</a>
+        <span class="product-name">
+          {{ props.item.productName }}
+        </span>
+
+        <a class="remove-btn" @click="removeItem">
+          Remover
+        </a>
       </div>
 
       <div class="bottom-row">
         <div class="quantity-selector">
           <button @click="decrement">−</button>
-          <span>{{ quantity }}</span>
+          <span>{{ props.item.quantity }}</span>
           <button @click="increment">+</button>
         </div>
-        <span class="product-price">R$97,00</span>
+
+        <span class="product-price">
+          MZN {{ (props.item.price.toFixed(2) * props.item.quantity).toFixed(2) }}
+        </span>
       </div>
     </div>
   </div>
@@ -113,5 +142,10 @@ const removeItem = () => {
 .product-price {
     font-size: 85%;
     color: #333;
+}
+
+.mini-image{
+  width: 100%;
+  max-width: 70px;
 }
 </style>

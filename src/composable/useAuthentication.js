@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { authApi } from "@/api/Authentication/authApi";
 import router from "@/router";
 import { authState } from "./useAuthState";
+import { CART_STORAGE_KEY } from "./useCart";
 
 export function useAuthentication(){
     const error = ref(null)
@@ -19,6 +20,7 @@ export function useAuthentication(){
                     phoneNumber: data.data.phoneNumber,
                     fullName: data.data.fullName
                 };
+                localStorage.removeItem(CART_STORAGE_KEY);
                 router.push('/');
             }
         }catch(err){

@@ -4,27 +4,27 @@ import { RouterLink } from 'vue-router';
 import { useAuthentication } from '@/composable/useAuthentication';
 import { authState } from '@/composable/useAuthState';
 import CartItems from '@/components/components-parts/CartItems.vue';
+import { useCart } from '@/composable/useCart';
 
 const menuOpen = ref(false)
 const cartOpen = ref(false)
 const isScrolled = ref(false)
 
 const { handleCheck } = useAuthentication()
+const {cartTotal, cartTotalPrice, cartItems, loadLocalCart, fetchCart, handleRemoveFromCart} = useCart();
 const user = authState.user
 
-// reactive computed values
 const logged = computed(() => authState.isLogged)
 const firstName = computed(() => {
   if (!user.fullName) return ''
   return user.fullName.split(' ')[0]
 })
 
-// scroll handler
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 20
 }
 
-// lifecycle hooks
+
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll)
 
@@ -38,6 +38,10 @@ onMounted(async () => {
       user.phoneNumber = userDetails.phoneNumber
       user.fullName = userDetails.fullName
     }
+
+    await fetchCart();
+  }else{
+    loadLocalCart();
   }
 })
 
@@ -98,8 +102,8 @@ onUnmounted(() => {
             </svg>
           </div>
           <div class="action-text">
-            <span class="action-label">Carrinho (3)</span>
-            <span class="action-sub">R$ 635,78</span>
+            <span class="action-label" @click="cartOpen = true">Carrinho ({{ cartTotal }})</span>
+            <span class="action-sub" @click="cartOpen = true">MZN {{ cartTotalPrice.toFixed(2) }}</span>
           </div>
         </div>
       </div>
@@ -109,6 +113,7 @@ onUnmounted(() => {
     <div class="mobile-search">
       <div class="search-bar">
         <input type="text" placeholder="O que você está buscando?" />
+        
         <button class="search-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
@@ -139,9 +144,10 @@ onUnmounted(() => {
     <transition name="slide-right">
       <aside v-if="cartOpen" class="cart-drawer">
         <button class="close-btn" @click="cartOpen = false">Carrinho de Compras X</button>
-        <CartItems/>
+        <CartItems v-for="item in cartItems"
+        :item="item"/>
         <div class="cart-footer">
-          <div class="total"><span>Total:</span> <span>R$ 300.00</span></div>
+          <div class="total"><span>Total:</span> <span>MZN {{cartTotalPrice.toFixed(2)}}</span></div>
           <button class="checkout-btn">Finalizar Compra</button>
         </div>
       </aside>

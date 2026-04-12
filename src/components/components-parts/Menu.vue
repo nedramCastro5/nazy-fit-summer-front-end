@@ -17,12 +17,14 @@ const checkScroll = () => {
 const scroll = (dir) => {
   navInner.value.scrollBy({ left: dir * 200, behavior: 'smooth' })
   setTimeout(checkScroll, 300)
+  clearTimeout();
 }
 
 onMounted(() => {
   setTimeout(() => {
     checkScroll()
   }, 100)
+  clearTimeout();
 
   navInner.value.addEventListener('scroll', checkScroll)
   window.addEventListener('resize', checkScroll)

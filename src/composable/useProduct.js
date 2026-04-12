@@ -58,7 +58,7 @@ export function useProduct() {
 
         try{
             const {data} = await productApi.getTopSales();
-            products.value = data?.data?.content ?? [];
+            products.value = data?.data ?? [];
         }catch(err){
             error.value = err.message
             products.value = [];

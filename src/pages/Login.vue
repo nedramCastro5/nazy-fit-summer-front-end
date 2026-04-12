@@ -2,12 +2,15 @@
 import { ref } from 'vue';
 import BreadCrumb from '@/components/components-parts/BreadCrumb.vue';
 import { useAuthentication } from '@/composable/useAuthentication';
+import { useCart } from '@/composable/useCart';
 
 const showPassword = ref(false);
 
 const {error, handleLogin} = useAuthentication();
 
-const login = () => {
+const {fetchCart, mergeCarts} = useCart();
+
+const login = async () => {
     const insertedEmail = document.getElementById('userEmail').value;
     const insertedPassword = document.getElementById('userPassword').value;
 
@@ -22,11 +25,12 @@ const login = () => {
     }
 
 
-    handleLogin({
+    await handleLogin({
         email: insertedEmail,
         password: insertedPassword
     })
-    
+    await mergeCarts();
+    await fetchCart();
 }
 </script>
 <template>

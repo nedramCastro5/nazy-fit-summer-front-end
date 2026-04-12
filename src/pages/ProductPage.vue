@@ -3,8 +3,12 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProduct } from '@/composable/useProduct';
 import SimilarProducts from '@/components/SimilarProducts.vue'
+import { useCssVars } from 'vue';
+import { useCart } from '@/composable/useCart';
 
 const {fetchBySlug, loading, error, product} = useProduct();
+const {handleAddToCart} = useCart();
+
 const route = useRoute();
 const selectedIndex = ref(0)
 const selectImage = (index) => {
@@ -13,14 +17,23 @@ const selectImage = (index) => {
 
 const addedToCart = ref(false)
 
-const addToCart = () => {
-  addedToCart.value = true
+
+const addToCart = async (product, quantity = 1) => {
+  await handleAddToCart(product, quantity);
+  addedToCart.value = true;
+
+  setTimeout(() => {
+    addedToCart.value = false;
+  }, 2000)
+
+  clearTimeout();
 }
 
 const activeTab = ref('descricao')
 onMounted(()=>{
   fetchBySlug(route.params.slug);
 })
+
 </script>
 
 <template>
@@ -60,7 +73,7 @@ onMounted(()=>{
         <p class="installments">12 x de MZN {{product.price.toFixed(2)}}</p>
         <a href="#" class="more-details">Ver mais detalhes</a>
 
-        <button v-if="product.stock > 0" class="btn" @click="addToCart">Comprar</button>
+        <button v-if="product.stock > 0" class="btn" @click="addToCart(product)">Comprar</button>
         <button v-else class="btn btn-esgotado" disabled>Esgotado</button>
 
         <div v-if="addedToCart" class="cart-confirm">
