@@ -1,5 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useCategory } from '@/composable/useCategories'
+
+const {fetchAll, categories, loading, error} = useCategory()
 
 const navInner = ref(null)
 
@@ -20,7 +23,16 @@ const scroll = (dir) => {
   clearTimeout();
 }
 
-onMounted(() => {
+const categoryColumns = computed(() => {
+  const cols = []
+  for (let i = 0; i < categories.value.length; i += 2) {
+    cols.push(categories.value.slice(i, i + 2))
+  }
+  return cols
+})
+
+onMounted(async () => {
+  await fetchAll();
   setTimeout(() => {
     checkScroll()
   }, 100)
@@ -33,27 +45,26 @@ onMounted(() => {
 
 <template>
   <nav class="nav">
+    
+    <div class="nav-content">
 
     <div 
       class="nav-item dropdown"
       @mouseenter="open = true"
       @mouseleave="open = false"
     >
-      CATEGORIAS ▾
+      Categorias ▾
 
       <div class="mega-menu">
         <div class="mega-content">
-          <div class="col">
-            <a href="#">Gel Redutor</a>
-            <a href="#">Suplementos em Cápsulas</a>
-          </div>
-          <div class="col">
-            <a href="#">Suplemento em Gotas</a>
-            <a href="#">Suplemento em Pó</a>
-          </div>
-          <div class="col">
-            <a href="#">Combos</a>
-            <a href="#">Novidades</a>
+          <div class="col" v-for="(col, colIndex) in categoryColumns" :key="colIndex">
+            <a 
+              v-for="category in col" 
+              :key="category.categoryId" 
+              href="#"
+            >
+              {{ category.categoryName }}
+            </a>
           </div>
         </div>
       </div>
@@ -65,17 +76,12 @@ onMounted(() => {
     <button v-if="showLeft" class="arrow" @click="scroll(-1)">‹</button>
 
     <div class="nav-inner" ref="navInner">
-      <a class="nav-item">NOVIDADES</a>
-      <a class="nav-item">GEL REDUTOR</a>
-      <a class="nav-item">SUPLEMENTO EM CÁPSULAS</a>
-      <a class="nav-item">SUPLEMENTO EM GOTAS</a>
-      <a class="nav-item">SUPLEMENTO EM PÓ</a>
-      <a class="nav-item">COMBOS</a>
-      <a class="nav-item">CONTATO</a>
+      <a class="nav-item">Novidades</a>
+      <a v-for="category in categories" class="nav-item">{{ category.categoryName }}</a>
     </div>
 
     <button v-if="showRight" class="arrow" @click="scroll(1)">›</button>
-
+  </div>
   </nav>
 </template>
 
@@ -85,10 +91,19 @@ onMounted(() => {
   width: 100%;
   height: 60px;
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 10px;
   position: relative;
+}
+
+.nav-content{
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 10%; 
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .nav-item {
@@ -98,7 +113,6 @@ onMounted(() => {
 }
 
 .dropdown {
-  position: relative;
   flex-shrink: 0;
 }
 
@@ -147,16 +161,26 @@ onMounted(() => {
 }
 
 .mega-menu {
-  position: fixed;
+  position: absolute;
+  left: 0;
+  top: 50px;
   width: 100%;
-  padding: 20px  15px;
-  top: 25%;
+  padding: 20px 15px;
   background: #f3e7e8;
   z-index: 10;
 
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.25s ease, transform 1s ease;
+}
+
+.mega-menu::before{
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 10px;
 }
 
 .dropdown:hover .mega-menu {

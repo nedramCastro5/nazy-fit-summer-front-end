@@ -1,25 +1,24 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import banner1 from '@/assets/banner1.jpeg'
-import banner2 from '@/assets/banner2.jpeg'
-import banner3 from '@/assets/banner3.jpeg'
+import { useProduct } from '@/composable/useProduct'
+
+const {fetchIsFeatured, products, loading, error} = useProduct();
 
 const current = ref(0)
 
-const images = [banner1, banner2, banner3]
-
 const next = () => {
-  current.value = (current.value + 1) % images.length
+  current.value = (current.value + 1) % products.value.length
 }
 
 const prev = () => {
-  current.value =
-    (current.value - 1 + images.length) % images.length
+  current.value = (current.value - 1 + products.value.length) % products.value.length
 }
 
 let interval = null
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchIsFeatured();
+
   interval = setInterval(() => {
     next()
   }, 4000)
@@ -31,25 +30,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="hero">
+  <template v-if="!loading && products.length > 0">
+    <section class="hero">
+      <img :src="products[current]?.principalUrl" class="hero-img" />
 
-    <img :src="images[current]" class="hero-img" />
-
-    <button class="arrow left" @click="prev">←</button>
-    <button class="arrow right" @click="next">→</button>
-
-  </section>
+      <button class="arrow left" @click="prev">←</button>
+      <button class="arrow right" @click="next">→</button>
+    </section>
 
     <div class="dots">
       <span
-        v-for="(img, i) in images"
+        v-for="(img, i) in products"
         :key="i"
         class="dot"
         :class="{ active: i === current }"
         @click="current = i"
       />
     </div>
+  </template>
 
+  <div v-else-if="loading" class="hero-skeleton" />
+
+  <div v-else-if="error">{{ error }}</div>
 </template>
 
 <style scoped>

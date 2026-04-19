@@ -9,10 +9,10 @@ console.log(JSON.parse(localStorage.getItem('userCart')) || []);
 </script>
 
 <template>
-    <Header/>
+    <Header v-if="!$route.meta.hideLayout" />
     <RouterView :key="$route.fullPath"/>
-    <Footer/>
-    <a href=""><img src="@/assets/wa-logo.png" alt="Whatsapp logo" class="wa-logo"></a>
+    <Footer v-if="!$route.meta.hideLayout" />
+    <a v-if="!$route.meta.hideLayout" href=""><img src="@/assets/wa-logo.png" alt="Whatsapp logo" class="wa-logo"></a>
 </template>
 
 <style scoped>

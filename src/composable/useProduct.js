@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { productApi } from "@/api/Product/productApi";
+import api from "@/api";
 
 export function useProduct() {
     const product = ref({
@@ -33,6 +34,20 @@ export function useProduct() {
         try{
             const {data} = await productApi.getAll();
             products.value = data.data.content
+        }catch(err){
+            error.value = err.message
+        }finally{
+            loading.value = false;
+        }
+    }
+
+    const fetchList = async () =>{
+        loading.value = true;
+
+        try{
+            const {data} = await productApi.listAll();
+            console.log(data)
+            products.value = data.data
         }catch(err){
             error.value = err.message
         }finally{
@@ -109,6 +124,68 @@ export function useProduct() {
         }
     }
 
+    const createProduct = async (formData) =>{
+        loading.value = true;
+
+        try{
+            await productApi.create(formData);
+        }catch(err){
+            error.value = err;
+        }finally{
+            loading.value = false;
+        }
+    }
+
+    const deleteProduct = async (productId) => {
+        loading.value = true;
+
+        try{
+            await productApi.delete(productId);
+        }catch(err){
+            error.value = err.message
+        }finally{
+            loading.value = false;
+        }
+    }
+
+    const fetchIsFeatured = async () =>{
+        loading.value = true;
+    
+        try{
+            const {data} = await productApi.getIsFeatured();
+            products.value = data.data
+        }catch(err){
+            error.value = err.message;
+        }finally{
+            loading.value = false;
+        }
+    }
+
+    const updateProduct = async (productId, fd) => {
+        loading.value = true;
+        try{
+            await productApi.updateProduct(productId, fd)
+        }catch(err){
+            error.value = err.message;
+        }finally{
+            loading.value = false;
+        }
+    }
+    
+    const fetchBySearch = async (productName) => {
+        loading.value = true;
+
+        try{
+            const {data} = await productApi.search(productName);
+            products.value = data.data;
+        }catch(err){
+            error.value = err;
+        }finally{
+            loading.value = false;
+        }
+
+    }
+
     return {
         fetchAll,
         fetchOffers, 
@@ -116,6 +193,12 @@ export function useProduct() {
         fetchSpecialCombo,
         fetchBySlug,
         fetchByCategoryId,
+        createProduct,
+        deleteProduct,
+        fetchList,
+        fetchIsFeatured,
+        updateProduct,
+        fetchBySearch,
         products, 
         loading, 
         error, 
