@@ -13,10 +13,11 @@ const editingProduct = ref(null);
 const showDeleteModal = ref(false);
 const productToDelete = ref(null);
 const editImages = ref([]);
+const saving = ref(false);
+const deleting = ref(false);
 
 const maxLength = 120;
 const expandedDescriptions = ref({});
-
 
 const filteredProducts = computed(() => {
     return (products.value || []).filter(p => {
@@ -27,7 +28,11 @@ const filteredProducts = computed(() => {
 });
 
 const openEdit = (product) => {
-    editingProduct.value = { ...product, description: product.description ? JSON.parse(JSON.stringify(product.description)) : [] };
+    editingProduct.value = {
+        ...product,
+        description: product.description ? JSON.parse(JSON.stringify(product.description)) : [],
+        hasDiscount: product.discountPrice != null && product.discountPrice !== '',
+    };
     editImages.value = [];
 };
 
@@ -55,6 +60,7 @@ const removeBlock = (index) => {
 };
 
 const saveEdit = async () => {
+    saving.value = true;
     const fd = new FormData();
     fd.append('productName', editingProduct.value.productName);
     fd.append('titleDescription', editingProduct.value.titleDescription);
@@ -63,11 +69,15 @@ const saveEdit = async () => {
     fd.append('stock', editingProduct.value.stock);
     fd.append('categoryId', editingProduct.value.categoryId);
     fd.append('isSpecialCombo', editingProduct.value.isSpecialCombo);
-    fd.append('isFeatured', editingProduct.value.isSpecialCombo);
+    fd.append('isFeatured', editingProduct.value.isFeatured);
+    fd.append('discountPrice', editingProduct.value.hasDiscount && editingProduct.value.discountPrice
+        ? editingProduct.value.discountPrice
+        : '');
     fd.append('description', JSON.stringify(editingProduct.value.description));
     editImages.value.forEach(img => fd.append('images', img));
 
     await updateProduct(editingProduct.value.productId, fd);
+    saving.value = false;
     closeEdit();
     await getProducts();
 };
@@ -83,7 +93,9 @@ const cancelDelete = () => {
 };
 
 const executeDelete = async () => {
+    deleting.value = true;
     await deleteProduct(productToDelete.value.productId);
+    deleting.value = false;
     showDeleteModal.value = false;
     productToDelete.value = null;
     await getProducts();
@@ -94,9 +106,7 @@ const getCategoryName = (id) => {
     return cat ? cat.categoryName : '—';
 };
 
-const isExpanded = (id) => {
-    return !!expandedDescriptions.value[id];
-};
+const isExpanded = (id) => !!expandedDescriptions.value[id];
 
 const toggleDescription = (id) => {
     expandedDescriptions.value[id] = !expandedDescriptions.value[id];
@@ -104,11 +114,7 @@ const toggleDescription = (id) => {
 
 const formatShortDescription = (product) => {
     const text = product.shortDescription || '';
-
-    if (isExpanded(product.productId) || text.length <= maxLength) {
-        return text;
-    }
-
+    if (isExpanded(product.productId) || text.length <= maxLength) return text;
     return text.slice(0, maxLength) + '...';
 };
 
@@ -148,19 +154,19 @@ onMounted(async () => {
                             <th>Preço</th>
                             <th>Stock</th>
                             <th>Combo</th>
+                            <th>Desconto</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-if="filteredProducts.length === 0">
-                            <td colspan="6" class="empty">Nenhum produto encontrado.</td>
+                            <td colspan="7" class="empty">Nenhum produto encontrado.</td>
                         </tr>
                         <tr v-for="product in filteredProducts" :key="product.productId">
                             <td>
                                 <div class="product-name">{{ product.productName }}</div>
                                 <div class="product-sub">
                                     {{ formatShortDescription(product) }}
-
                                     <span
                                         v-if="product.shortDescription && product.shortDescription.length > maxLength"
                                         @click="toggleDescription(product.productId)"
@@ -171,7 +177,7 @@ onMounted(async () => {
                                 </div>
                             </td>
                             <td>{{ getCategoryName(product.categoryId) }}</td>
-                            <td>{{ product.price }}</td>
+                            <td>MZN {{ Number(product.price).toFixed(2) }}</td>
                             <td>
                                 <span :class="['stock-badge', product.stock <= 5 ? 'low' : 'ok']">
                                     {{ product.stock }}
@@ -181,6 +187,12 @@ onMounted(async () => {
                                 <span :class="['combo-badge', product.isSpecialCombo ? 'yes' : 'no']">
                                     {{ product.isSpecialCombo ? 'Sim' : 'Não' }}
                                 </span>
+                            </td>
+                            <td>
+                                <span v-if="product.discountPrice" class="discount-badge">
+                                    MZN {{ Number(product.discountPrice).toFixed(2) }}
+                                </span>
+                                <span v-else class="combo-badge no">—</span>
                             </td>
                             <td>
                                 <div class="actions">
@@ -208,7 +220,6 @@ onMounted(async () => {
                             <div class="product-name">{{ product.productName }}</div>
                             <div class="product-sub">
                                 {{ formatShortDescription(product) }}
-
                                 <span
                                     v-if="product.shortDescription && product.shortDescription.length > maxLength"
                                     @click="toggleDescription(product.productId)"
@@ -230,7 +241,7 @@ onMounted(async () => {
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">Preço</span>
-                            <span class="meta-value">{{ product.price }}</span>
+                            <span class="meta-value">MZN {{ Number(product.price).toFixed(2) }}</span>
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">Stock</span>
@@ -240,6 +251,12 @@ onMounted(async () => {
                             <span class="meta-label">Combo</span>
                             <span :class="['combo-badge', product.isSpecialCombo ? 'yes' : 'no']">
                                 {{ product.isSpecialCombo ? 'Sim' : 'Não' }}
+                            </span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Desconto</span>
+                            <span class="meta-value">
+                                {{ product.discountPrice ? 'MZN ' + Number(product.discountPrice).toFixed(2) : '—' }}
                             </span>
                         </div>
                     </div>
@@ -257,8 +274,8 @@ onMounted(async () => {
                 <div class="modal-body">
                     <div class="grid">
                         <input v-model="editingProduct.productName" placeholder="Nome do produto" />
-                        <input v-model="editingProduct.price" placeholder="Preço" />
-                        <input v-model="editingProduct.stock" placeholder="Stock" />
+                        <input v-model="editingProduct.price" type="number" min="0" step="0.01" placeholder="Preço" />
+                        <input v-model="editingProduct.stock" type="number" min="0" step="1" placeholder="Stock" />
                         <select v-model="editingProduct.categoryId">
                             <option disabled value="">Selecione uma categoria</option>
                             <option v-for="cat in categories" :key="cat.categoryId" :value="cat.categoryId">
@@ -266,8 +283,46 @@ onMounted(async () => {
                             </option>
                         </select>
                     </div>
+
                     <input v-model="editingProduct.titleDescription" placeholder="Título da descrição" />
                     <input v-model="editingProduct.shortDescription" placeholder="Descrição curta" />
+
+                    <!-- Discount Section -->
+                    <div class="discount-section">
+                        <label class="checkbox">
+                            <input type="checkbox" v-model="editingProduct.hasDiscount" />
+                            Aplicar Desconto
+                        </label>
+
+                        <div v-if="editingProduct.hasDiscount" class="discount-fields">
+                            <div class="discount-row">
+                                <div class="field">
+                                    <label class="field-label">Preço com desconto</label>
+                                    <input
+                                        v-model="editingProduct.discountPrice"
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="ex: 199.99"
+                                    />
+                                </div>
+                                <div
+                                    class="discount-preview"
+                                    v-if="editingProduct.discountPrice && editingProduct.price"
+                                >
+                                    <span class="original-price">MZN {{ Number(editingProduct.price).toFixed(2) }}</span>
+                                    <span class="arrow">→</span>
+                                    <span class="new-price">MZN {{ Number(editingProduct.discountPrice).toFixed(2) }}</span>
+                                    <span
+                                        class="saving-badge"
+                                        v-if="Number(editingProduct.price) > Number(editingProduct.discountPrice)"
+                                    >
+                                        -{{ Math.round((1 - editingProduct.discountPrice / editingProduct.price) * 100) }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="builder">
                         <div class="builder-header">
@@ -292,16 +347,26 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <label class="checkbox">
-                        <input type="checkbox" v-model="editingProduct.isSpecialCombo" />
-                        Combo Especial
-                    </label>
+                    <div class="addon-features">
+                        <label class="checkbox">
+                            <input type="checkbox" v-model="editingProduct.isSpecialCombo" />
+                            Combo Especial
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" v-model="editingProduct.isFeatured" />
+                            Marcado
+                        </label>
+                    </div>
 
-                    <input type="file" multiple @change="handleEditFiles" />
+                    <input type="file" multiple accept="image/*,video/*" @change="handleEditFiles" />
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-cancel" @click="closeEdit">Cancelar</button>
-                    <button class="btn-save" @click="saveEdit"><Save /> Guardar</button>
+                    <button class="btn-cancel" @click="closeEdit" :disabled="saving">Cancelar</button>
+                    <button class="btn-save" @click="saveEdit" :disabled="saving">
+                        <span v-if="saving" class="spinner"></span>
+                        <Save v-else />
+                        {{ saving ? 'A guardar...' : 'Guardar' }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -317,8 +382,11 @@ onMounted(async () => {
                     <p>Tens a certeza que queres remover <strong>{{ productToDelete?.productName }}</strong>? Esta acção não pode ser revertida.</p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-cancel" @click="cancelDelete">Cancelar</button>
-                    <button class="btn-delete-confirm" @click="executeDelete">Remover</button>
+                    <button class="btn-cancel" @click="cancelDelete" :disabled="deleting">Cancelar</button>
+                    <button class="btn-delete-confirm" @click="executeDelete" :disabled="deleting">
+                        <span v-if="deleting" class="spinner"></span>
+                        {{ deleting ? 'A remover...' : 'Remover' }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -350,7 +418,6 @@ h1 {
     margin: 0;
 }
 
-/* ── Filters ── */
 .filters {
     display: flex;
     gap: 10px;
@@ -398,7 +465,6 @@ input, select {
     box-sizing: border-box;
 }
 
-/* ── Desktop Table ── */
 .table-wrap {
     overflow-x: auto;
     background: white;
@@ -410,7 +476,6 @@ input, select {
 }
 
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
-
 thead tr { background: #0f172a; color: white; }
 
 th {
@@ -424,13 +489,11 @@ th {
 
 tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
 tbody tr:hover { background: #f8fafc; }
-
 td { padding: 12px 16px; color: #334155; vertical-align: middle; }
 
 .product-name { font-weight: 600; color: #0f172a; }
 .product-sub  { font-size: 12px; color: #94a3b8; margin-top: 2px; }
 
-/* ── Mobile Cards ── */
 .card-list { display: none; flex-direction: column; gap: 10px; }
 
 @media (max-width: 768px) {
@@ -482,7 +545,6 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
     border: 1px solid #e2e8f0;
 }
 
-/* ── Badges ── */
 .stock-badge {
     display: inline-block;
     padding: 2px 10px;
@@ -503,7 +565,16 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
 .combo-badge.yes { background: #dbeafe; color: #2563eb; }
 .combo-badge.no  { background: #f1f5f9; color: #64748b; }
 
-/* ── Action Buttons ── */
+.discount-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #dcfce7;
+    color: #16a34a;
+}
+
 .actions { display: flex; gap: 6px; flex-shrink: 0; }
 
 .btn-edit, .btn-delete {
@@ -526,7 +597,6 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
 .state-msg { padding: 20px; color: #64748b; }
 .state-msg.error { color: #dc2626; }
 
-/* ── Modal ── */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -598,13 +668,8 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
 }
 
 @media (max-width: 480px) {
-    .modal-footer {
-        flex-direction: column-reverse;
-    }
-    .modal-footer button {
-        width: 100%;
-        justify-content: center;
-    }
+    .modal-footer { flex-direction: column-reverse; }
+    .modal-footer button { width: 100%; justify-content: center; }
 }
 
 .btn-cancel {
@@ -630,7 +695,7 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
     gap: 6px;
     transition: 0.2s;
 }
-.btn-save:hover { background: #1d4ed8; }
+.btn-save:hover:not(:disabled) { background: #1d4ed8; }
 .btn-save svg { width: 15px; height: 15px; }
 
 .btn-delete-confirm {
@@ -640,11 +705,32 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
     color: white;
     cursor: pointer;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     transition: 0.2s;
 }
-.btn-delete-confirm:hover { background: #b91c1c; }
+.btn-delete-confirm:hover:not(:disabled) { background: #b91c1c; }
 
-/* ── Builder ── */
+.btn-save:disabled,
+.btn-delete-confirm:disabled,
+.btn-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -655,6 +741,79 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
     .grid { grid-template-columns: 1fr; }
 }
 
+/* ── Discount ── */
+.discount-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.discount-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.discount-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 140px;
+}
+
+.field-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.discount-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.original-price {
+    font-size: 13px;
+    color: #94a3b8;
+    text-decoration: line-through;
+}
+
+.arrow { color: #94a3b8; font-size: 12px; }
+
+.new-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: #16a34a;
+}
+
+.saving-badge {
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+/* ── Builder ── */
 .builder {
     background: #f8fafc;
     padding: 14px;
@@ -714,6 +873,12 @@ td { padding: 12px 16px; color: #334155; vertical-align: middle; }
     padding: 5px 8px;
     cursor: pointer;
     flex-shrink: 0;
+}
+
+.addon-features {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .checkbox {

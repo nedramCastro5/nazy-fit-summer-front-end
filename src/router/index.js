@@ -50,6 +50,7 @@ const routes = [
         name: 'admin',
         component: Admin,
         meta: {hideLayout: true},
+        redirect: { name: 'analise' },
         children: [
             {
                 path: 'analitics/analise',

@@ -108,8 +108,11 @@ onUnmounted(() => {
       </button>
 
       <!-- Logo -->
+      
       <div class="logo">
-        <img src="../../assets/logo.png" alt="logo" class="logo-img">
+        <RouterLink to="/">
+          <img src="../../assets/logo.png" alt="logo" class="logo-img">
+        </RouterLink>
       </div>
 
       <!-- Desktop search -->
@@ -274,6 +277,10 @@ a {
 .total {
   display: flex;
   justify-content: space-between;
+}
+
+.total span{
+  font-weight: 600;
 }
 
 .header {
@@ -567,7 +574,6 @@ a {
 .close-btn {
   border: none;
   padding: 10px;
-  background-color: #f08a9264;
   margin-bottom: 20px;
 }
 
@@ -612,8 +618,9 @@ a {
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background: #f08a93;
+  background-color: rgb(183, 0, 73);
   color: white;
+  font-weight: 600;
 }
 
 .slide-enter-from { transform: translateX(-100%); }

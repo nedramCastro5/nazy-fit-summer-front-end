@@ -60,7 +60,7 @@ const removeItem = async () => {
         </div>
 
         <span class="product-price">
-          MZN {{ (props.item.price.toFixed(2) * props.item.quantity).toFixed(2) }}
+          MZN {{ (props.item.price * props.item.quantity).toFixed(2) }}
         </span>
       </div>
     </div>

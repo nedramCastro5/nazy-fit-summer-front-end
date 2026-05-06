@@ -32,10 +32,11 @@ onUnmounted(() => {
 <template>
   <template v-if="!loading && products.length > 0">
     <section class="hero">
-      <img :src="products[current]?.principalUrl" class="hero-img" />
-
-      <button class="arrow left" @click="prev">←</button>
-      <button class="arrow right" @click="next">→</button>
+        <RouterLink :to="`/product/${products[current].productId}/${products[current].slug}/${products[current].categoryId}`">
+            <img :src="products[current]?.principalUrl" class="hero-img" />
+        </RouterLink>
+        <button class="arrow left" @click="prev">←</button>
+        <button class="arrow right" @click="next">→</button>
     </section>
 
     <div class="dots">
